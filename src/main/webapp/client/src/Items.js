@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 import {
@@ -9,13 +9,26 @@ import {
   CardMedia,
   CardActions,
   Grid,
+  CardActionArea,
   CardContent,
+  Typography,
 } from "@material-ui/core";
-import ShareIcon from "@material-ui/icons/Share";
+import DeleteIcon from "@material-ui/icons/Delete";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import { Formik, Form } from "formik";
 import MyTextField from "./Input";
 import { useSelector } from "react-redux";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("User name is required"),
+  cost: Yup.number()
+    .min(0, "Cost can't be under 0")
+    .required("cost is required"),
+  inStock: Yup.number()
+    .min(0, "inStock can't be under 0")
+    .required("inStock is required"),
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   media: {
     width: 200,
     height: 50,
-    // height: 0,
+    // borderStyle: "ridge none ridge none",
     paddingTop: "56.25%", // 16:9
   },
   expand: {
@@ -53,16 +66,22 @@ const useStyles = makeStyles((theme) => ({
     width: 200,
     height: 200,
   },
+  red: {
+    color: "red",
+  },
 }));
 
 export const Items = () => {
   const classes = useStyles();
-  // const user = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
+  const user = useSelector((state) => state.user);
+  const userDetails = useSelector((state) => state.userDetails);
   const [items, setitems] = useState([]);
   const [item, setitem] = useState(undefined);
   const [image, setimage] = useState(undefined);
   const [preview, setpreview] = useState(undefined);
+  const [addingItem, setaddingItem] = useState(false);
+  const [wishlist, setwishlist] = useState([]);
   const noItemImage =
     "https://res.cloudinary.com/itemsrestcloud/image/upload/v1596906678/none_kqgfrl.png";
 
@@ -72,18 +91,30 @@ export const Items = () => {
 
   const f = async () => {
     try {
-      // console.log(token);
       const res = await axios.get("/api/items/", config);
-      // console.log(res);
       setitems(res.data);
+      const res1 = await axios.get(`/api/user/getWishlist/${userDetails.id}`);
+      const wishes = res1.data;
+      console.log(wishes);
+      console.log(userDetails.id);
+      setwishlist(wishes);
     } catch (e) {
       console.log(e);
     }
   };
 
+  useEffect(() => {
+    console.log(userDetails);
+    f();
+  }, []);
+
   function handleChange(e) {
-    setimage(e.target.files[0]);
-    setpreview(URL.createObjectURL(e.target.files[0]));
+    if (e.target.files[0]) {
+      setimage(e.target.files[0]);
+      setpreview(URL.createObjectURL(e.target.files[0]));
+    } else {
+      setpreview(null);
+    }
   }
 
   const deleteItem = async (item) => {
@@ -91,44 +122,124 @@ export const Items = () => {
     // delete image from cloud
     if (item.imageId) {
       const res1 = await axios.delete(`api/image/${item.imageId}`, config);
-      // console.log(res1);
+      console.log(res1);
     }
 
     // delete item from DB
     const res2 = await axios.delete(`api/items/${item.id}`, config);
-    // console.log(res2);
+    console.log(res2);
     f();
   };
+
+  const handleWishlist = async (e, item) => {
+    e.target.style.color === "red"
+      ? (e.target.style.color = "rgba(0, 0, 0, 0.54)")
+      : (e.target.style.color = "red");
+    try {
+      if (e.target.style.color === "red") {
+        setaddingItem(true);
+        const res = await axios.post("/api/user/addToWishlist", {
+          userId: userDetails.id,
+          itemId: item.id,
+        });
+        console.log(userDetails);
+        console.log(res.data);
+        setaddingItem(false);
+      } else {
+        setaddingItem(true);
+        await axios.delete("/api/user/removeFromWishlist", {
+          data: {
+            userId: userDetails.id,
+            itemId: item.id,
+          },
+        });
+        setaddingItem(false);
+        console.log(userDetails);
+      }
+    } catch (e) {
+      console.log(userDetails);
+      console.log(e.message);
+    }
+  };
+
   return (
     <div>
-      <h1 className={classes.title}>Nutrition Express</h1>
-      {item ? item.name : null}
-      <Grid container justify="flex-start" spacing={1}>
+      {item?.name}
+      <Grid container justify="flex-start" spacing={2}>
         {items.map((item) => (
           <Grid item key={item.id}>
             <Card className={classes.root} onClick={() => setitem(item)}>
-              <CardHeader
-                title={item.name}
-                subheader={item.cost}
-                style={{ color: "orange", fontWeight: "bold" }}
-              />
-              <CardMedia
-                className={classes.media}
-                image={item.image ? item.image : noItemImage}
-                title="item pic"
-              />
-
-              <CardActions disableSpacing>
-                <IconButton>
+              <CardActionArea>
+                <CardMedia
+                  className={classes.media}
+                  image={item.image ? item.image : noItemImage}
+                  title="item pic"
+                />
+              </CardActionArea>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  align="center"
+                  style={{
+                    color: "orange",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {item.name}
+                </Typography>
+                <br />
+                <Typography
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                  align="center"
+                >
+                  {item.cost}$
+                </Typography>
+                <IconButton
+                  style={{ padding: "1rem" }}
+                  onClick={(e) => handleWishlist(e, item)}
+                  disabled={addingItem}
+                >
                   <FavoriteIcon />
                 </IconButton>
-                <IconButton>
-                  <ShareIcon />
+                <IconButton
+                  style={{ color: "rgb(228,13,13)", right: "-3.5rem" }}
+                  onClick={() => deleteItem(item)}
+                >
+                  <DeleteIcon />
                 </IconButton>
-              </CardActions>
-              <CardContent>
-                <Button onClick={() => deleteItem(item)}>Delete</Button>
               </CardContent>
+              {/* <CardHeader
+                variant="h1"
+                title={item.name}
+                subheader={item.cost}
+                style={{
+                  color: "orange",
+                  fontWeight: "bold",
+                }}
+              /> */}
+              {/* <CardActions disableSpacing>
+                <IconButton
+                  style={{ padding: "1.7rem" }}
+                  onClick={(e) => {
+                    e.target.style.color === "red"
+                      ? (e.target.style.color = "rgba(0, 0, 0, 0.54)")
+                      : (e.target.style.color = "red");
+                  }}
+                >
+                  <FavoriteIcon />
+                </IconButton>
+                <IconButton
+                  style={{ color: "red", right: "-2rem" }}
+                  onClick={() => deleteItem(item)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </CardActions> */}
+              {/* <CardContent>
+                <Button onClick={() => deleteItem(item)}>Delete</Button>
+              </CardContent> */}
             </Card>
           </Grid>
         ))}
@@ -136,9 +247,14 @@ export const Items = () => {
 
       <Grid container justify="center">
         <Grid item>
-          <Button onClick={() => f()} variant="outlined">
+          {/* <Button
+            onClick={() => f()}
+            variant="outlined"
+            style={{ marginTop: "1rem" }}
+            disabled={showButton}
+          >
             Items
-          </Button>
+          </Button> */}
           <h2>Add new item</h2>
           <Formik
             initialValues={{
@@ -148,6 +264,7 @@ export const Items = () => {
               image: "",
               imageId: "",
             }}
+            validationSchema={validationSchema}
             onSubmit={async (values, actions) => {
               try {
                 const formData = new FormData();
@@ -164,18 +281,21 @@ export const Items = () => {
                   values.image = res.data[0];
                   values.imageId = res.data[1];
                 }
-
+                if (values.name.length === 0) values.name = "No name";
                 console.log(values);
-                const addres = await axios.post("/api/items", values, config);
-                console.log(addres);
+                const address = await axios.post("/api/items", values, config);
+                console.log(address);
                 f();
                 // await axios.post("/api/items/", values);
 
                 return;
               } catch (e) {
                 console.log(e);
+              } finally {
+                actions.resetForm();
+                setpreview(null);
+                setimage(null);
               }
-              actions.resetForm();
             }}
           >
             {(values, isSubmitting) => (

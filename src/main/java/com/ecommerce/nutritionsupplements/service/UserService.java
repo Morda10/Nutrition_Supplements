@@ -2,6 +2,7 @@ package com.ecommerce.nutritionsupplements.service;
 
 import com.ecommerce.nutritionsupplements.entity.User;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface UserService {
@@ -17,4 +18,6 @@ public interface UserService {
     public User registerUser(User user);
 
     public User registerAdmin(User user);
+
+    Optional<User> findByUsername(String userName);
 }

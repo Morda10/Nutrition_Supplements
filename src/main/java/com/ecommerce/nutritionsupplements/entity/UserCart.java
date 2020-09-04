@@ -5,26 +5,26 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "userkart")
-public class UserKart {
+public class UserCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="id")
     private int id;
 
-    @Column(name="user_id_kart")
+    @Column(name="user_id_cart")
     private int userId;
 
-    @Column(name="kartItem")
+    @Column(name="cart_item")
     private int itemId;
 
     @Column(name="amount")
     private int amount;
 
-    public UserKart() {
+    public UserCart() {
     }
 
-    public UserKart(int userId, int itemId, int amount) {
+    public UserCart(int userId, int itemId, int amount) {
         this.userId = userId;
         this.itemId = itemId;
         this.amount = amount;

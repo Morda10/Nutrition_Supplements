@@ -1,10 +1,11 @@
-package com.ecommerce.nutritionsupplements.service;
+package com.ecommerce.nutritionsupplements.service.serviceImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 import com.ecommerce.nutritionsupplements.repository.ItemRepository;
 import com.ecommerce.nutritionsupplements.entity.Item;
+import com.ecommerce.nutritionsupplements.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

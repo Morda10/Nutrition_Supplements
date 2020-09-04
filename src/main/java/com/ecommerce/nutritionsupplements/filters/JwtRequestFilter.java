@@ -1,6 +1,6 @@
 package com.ecommerce.nutritionsupplements.filters;
 
-import com.ecommerce.nutritionsupplements.service.MyUserDetailsService;
+import com.ecommerce.nutritionsupplements.service.serviceImpl.MyUserDetailsService;
 import com.ecommerce.nutritionsupplements.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

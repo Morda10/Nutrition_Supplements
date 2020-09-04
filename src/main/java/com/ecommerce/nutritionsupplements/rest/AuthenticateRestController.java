@@ -3,7 +3,7 @@ package com.ecommerce.nutritionsupplements.rest;
 import com.ecommerce.nutritionsupplements.entity.User;
 import com.ecommerce.nutritionsupplements.models.AuthenticationRequest;
 import com.ecommerce.nutritionsupplements.models.AuthenticationResponse;
-import com.ecommerce.nutritionsupplements.service.MyUserDetailsService;
+import com.ecommerce.nutritionsupplements.service.serviceImpl.MyUserDetailsService;
 import com.ecommerce.nutritionsupplements.service.UserService;
 import com.ecommerce.nutritionsupplements.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 public class AuthenticateRestController {
@@ -33,10 +35,19 @@ public class AuthenticateRestController {
     @Autowired
     private UserService UserService;
 
+    @GetMapping("/getUserByName/{userName}")
+    public Optional<User> getUserByName(@PathVariable String userName){
+        return UserService.findByUsername(userName);
+    }
 
+     @GetMapping("/getUserId/{userName}")
+    public int getUserId(@PathVariable String userName){
+        return UserService.findByUsername(userName).get().getId();
+    }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        Optional<User> user;
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
@@ -50,6 +61,8 @@ public class AuthenticateRestController {
                 .loadUserByUsername(authenticationRequest.getUsername());
 
         final String jwt = jwtTokenUtil.generateToken(userDetails);
+
+        user = getUserByName(userDetails.getUsername());
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
@@ -76,6 +89,14 @@ public class AuthenticateRestController {
         UserService.registerAdmin(theUser);
 
         return theUser;
+    }
+
+ @GetMapping("/getuser/{theid}")
+    public User getuser(@PathVariable int theid) {
+
+        User user = UserService.findById(theid);
+
+        return user;
     }
 
 

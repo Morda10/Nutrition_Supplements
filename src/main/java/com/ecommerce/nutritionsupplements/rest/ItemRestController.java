@@ -4,16 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.cloudinary.utils.ObjectUtils;
-import com.ecommerce.nutritionsupplements.entity.Item;
+import com.ecommerce.nutritionsupplements.entity.*;
+import com.ecommerce.nutritionsupplements.models.Wish;
 import com.ecommerce.nutritionsupplements.service.ItemService;
+import com.ecommerce.nutritionsupplements.service.UserService;
+import com.ecommerce.nutritionsupplements.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 
-import javax.transaction.NotSupportedException;
+import javax.management.BadAttributeValueExpException;
 
 
 @RestController
@@ -22,6 +26,8 @@ import javax.transaction.NotSupportedException;
 public class ItemRestController {
 
 	private ItemService itemService;
+	private UserService userService;
+	private WishlistService wishlistService;
 
 
 
@@ -32,8 +38,11 @@ public class ItemRestController {
 
 
 	@Autowired
-	public ItemRestController(ItemService theitemService) {
+	public ItemRestController(ItemService theitemService, UserService theuserService, WishlistService thewishlistService) {
+
 		itemService = theitemService;
+		userService = theuserService;
+		wishlistService = thewishlistService;
 	}
 
 
@@ -120,7 +129,120 @@ public class ItemRestController {
 
 		return "Deleted image id - " + imageId;
 	}
-	
+
+
+
+	@PostMapping("/items/addHistory")
+	public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
+
+		User user = userService.findById(theShopHistory.getUserId());
+		user.addHistory(theShopHistory);
+		userService.save(user);
+
+		return theShopHistory;
+	}
+
+	@PostMapping("/items/addToCart")
+	public UserCart addItemToHistory(@RequestBody UserCart theUserCart) {
+
+		User user = userService.findById(theUserCart.getUserId());
+		user.addToCart(theUserCart);
+		userService.save(user);
+
+		return theUserCart;
+	}
+
+	@GetMapping("/user/getWishlist/{theid}")
+	public List<Item> getWishlistByUserId(@PathVariable int theid) {
+
+		User user = userService.findById(theid);
+		List<Wishlist> userWishlist = user.getWishlist();
+		List<Item> wishlistItems = new ArrayList<>();
+
+		for (Wishlist w: userWishlist) {
+			Item item = itemService.findById(w.getItemId());
+			wishlistItems.add(item);
+		}
+
+		return wishlistItems;
+	}
+
+	@PostMapping("/user/addToWishlist")
+	public String addItemToWishlist(@RequestBody Wish theWish) {
+		User user;
+		Wishlist theWishlist = new Wishlist(theWish.getItemId());
+
+//		System.out.println(theWish.getUserId());
+		try{
+			 user = userService.findById(theWish.getUserId());
+			 theWishlist.setUser(user);
+		}
+		catch (RuntimeException e){
+			return e.getMessage();
+		}
+
+		try{
+//			System.out.println(user);
+			user.addWish(theWishlist);
+			userService.save(user);
+		}
+		catch(Exception exception){
+			System.out.println(exception.getMessage());
+			return "item already exists at wishlist\n";
+
+		}
+
+		return "item added to wishlist";
+	}
+
+	@DeleteMapping("/user/removeFromWishlist")
+	public String removeFromWishlist(@RequestBody Wish theWish) {
+		System.out.println(theWish);
+		User user;
+		Wishlist theWishlist = new Wishlist(theWish.getItemId());
+
+		try{
+			 user = userService.findById(theWish.getUserId());
+
+//			 wish = wishlistService.findByUserIdAndItemId(theWishlist.getUserId(), theWishlist.getItemId());
+//			System.out.println(wish);
+		}
+		catch (RuntimeException e){
+			return e.getMessage();
+		}
+
+		try{
+			user.removeWish(theWishlist);
+//			System.out.println(theWishlist.getId());
+			wishlistService.deleteById(theWishlist.getId());
+			userService.save(user);
+
+		}
+		catch(BadAttributeValueExpException exception){
+			System.out.println(exception);
+			return exception.toString();
+
+		}
+
+		return "item removed from wishlist";
+	}
+
+//	@DeleteMapping("/items/{itemId}")
+//	public String deleteItem(@PathVariable int itemId) {
+//
+//		Item tempItem = itemService.findById(itemId);
+//
+//		// throw exception if null
+//
+//		if (tempItem == null) {
+//			throw new RuntimeException("Item id not found - " + itemId);
+//		}
+//
+//		itemService.deleteById(itemId);
+//
+//		return "Deleted item id - " + itemId;
+//	}
+
 }
 
 

@@ -18,6 +18,9 @@ const store = createStore(
 if (localStorage.getItem("jwt")) {
   const currentTime = Date.now() / 1000;
   const token = localStorage.getItem("jwt");
+  // const userDetails = localStorage.getItem("userDetails");
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  console.log(userDetails);
   const t = token;
   const decoded = jwt_decode(token);
 
@@ -25,7 +28,7 @@ if (localStorage.getItem("jwt")) {
     store.dispatch(logout());
     window.location.href = "/Login";
   } else {
-    store.dispatch(setUser(token));
+    store.dispatch(setUser(token, userDetails));
     store.dispatch(setToken(t));
   }
 }

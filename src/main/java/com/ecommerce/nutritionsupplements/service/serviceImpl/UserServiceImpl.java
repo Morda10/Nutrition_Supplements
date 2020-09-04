@@ -1,7 +1,8 @@
-package com.ecommerce.nutritionsupplements.service;
+package com.ecommerce.nutritionsupplements.service.serviceImpl;
 
 import com.ecommerce.nutritionsupplements.repository.UserRepository;
 import com.ecommerce.nutritionsupplements.entity.User;
+import com.ecommerce.nutritionsupplements.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private UserRepository theUserRepository;
 
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService{
 
         User theUser = null;
 
+//        System.out.println("theUser");
         if (result.isPresent()) {
             theUser = result.get();
         }
@@ -40,7 +42,6 @@ public class UserServiceImpl implements UserService{
             // we didn't find the employee
             throw new RuntimeException("Did not find user id - " + theId);
         }
-
         return theUser;
 
     }
@@ -75,5 +76,10 @@ public class UserServiceImpl implements UserService{
         user.setActive(true);
         user.setRoles("ADMIN");
         return theUserRepository.save(user);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String userName) {
+        return theUserRepository.findByUsername(userName);
     }
 }

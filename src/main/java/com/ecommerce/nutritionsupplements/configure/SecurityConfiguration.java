@@ -1,5 +1,6 @@
 package com.ecommerce.nutritionsupplements.configure;
 
+import com.ecommerce.nutritionsupplements.filters.CustomFilter;
 import com.ecommerce.nutritionsupplements.filters.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -46,14 +48,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.csrf().disable()
                 .authorizeRequests()
 //                .antMatchers("/api/**").hasAnyAuthority("ADMIN","USER")
-                .antMatchers("/registerAdmin").hasAuthority("ADMIN")
-                .antMatchers("/authenticate").permitAll()
-                .antMatchers("/registerUser").permitAll()
-                .antMatchers("/api/image/**").permitAll()
+//                .antMatchers("/getuser/**").permitAll()
+//                .antMatchers("/user/**").permitAll()
+//                .antMatchers("/registerAdmin").hasAuthority("ADMIN")
+//                .antMatchers("/authenticate").permitAll()
+//                .antMatchers("/registerUser").permitAll()
+                .antMatchers("/**").permitAll()
                 .anyRequest().authenticated().and().
                 exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterAfter(new CustomFilter(), BasicAuthenticationFilter.class);
 
 
     }

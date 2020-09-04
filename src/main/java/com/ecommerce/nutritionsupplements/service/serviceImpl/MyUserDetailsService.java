@@ -1,4 +1,4 @@
-package com.ecommerce.nutritionsupplements.service;
+package com.ecommerce.nutritionsupplements.service.serviceImpl;
 
 import com.ecommerce.nutritionsupplements.repository.UserRepository;
 import com.ecommerce.nutritionsupplements.models.MyUserDetails;
