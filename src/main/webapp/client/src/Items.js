@@ -162,6 +162,37 @@ export const Items = () => {
     }
   };
 
+  // const handleWishlist = async (e, item) => {
+  //   e.target.style.color === "red"
+  //     ? (e.target.style.color = "rgba(0, 0, 0, 0.54)")
+  //     : (e.target.style.color = "red");
+  //   try {
+  //     if (e.target.style.color === "red") {
+  //       setaddingItem(true);
+  //       const res = await axios.post("/api/user/addToWishlist", {
+  //         userId: userDetails.id,
+  //         itemId: item.id,
+  //       });
+  //       console.log(userDetails);
+  //       console.log(res.data);
+  //       setaddingItem(false);
+  //     } else {
+  //       setaddingItem(true);
+  //       await axios.delete("/api/user/removeFromWishlist", {
+  //         data: {
+  //           userId: userDetails.id,
+  //           itemId: item.id,
+  //         },
+  //       });
+  //       setaddingItem(false);
+  //       console.log(userDetails);
+  //     }
+  //   } catch (e) {
+  //     console.log(userDetails);
+  //     console.log(e.message);
+  //   }
+  // };
+
   return (
     <div>
       {item?.name}
