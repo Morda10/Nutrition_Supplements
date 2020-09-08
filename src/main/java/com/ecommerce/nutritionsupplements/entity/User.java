@@ -127,14 +127,14 @@ public class User {
 //        System.out.println(wishlist);
         for (Wishlist w:
              wishlist) {
-            if(w.getItemId() == theWishlist.getItemId()) {
+            if(w.getItem().getId() == theWishlist.getItem().getId()) {
                 itemInList =true;
                 theWishlist.setId(w.getId());
                 tmp = w;
             }
         }
         if ( wishlist == null || !itemInList) {
-            throw new BadAttributeValueExpException("Item " + theWishlist.getItemId() + " not at wishlist of " + theWishlist.getUser());
+            throw new BadAttributeValueExpException("Item " + theWishlist.getItem().getId() + " not at wishlist of " + theWishlist.getUser());
         }
         if(tmp!=null){
 

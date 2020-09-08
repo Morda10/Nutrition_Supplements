@@ -11,13 +11,15 @@ import Menu from "@material-ui/core/Menu";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import MailIcon from "@material-ui/icons/Mail";
-import NotificationsIcon from "@material-ui/icons/Notifications";
+// import MailIcon from "@material-ui/icons/Mail";
+import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+// import NotificationsIcon from "@material-ui/icons/Notifications";
+import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "./redux/actions/authActions";
-import { Button } from "@material-ui/core";
+import { logout } from "../../redux/actions/authActions";
+// import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -81,6 +83,9 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
+  badge: {
+    color: theme.palette.common.errorColor,
+  },
 }));
 
 export default function PrimarySearchAppBar({ routing }) {
@@ -88,6 +93,8 @@ export default function PrimarySearchAppBar({ routing }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const user = useSelector((s) => s.user);
+  const wishesCount = useSelector((s) => s.wishesCount);
+  const cartCount = useSelector((s) => s.cartCount);
   const dispatch = useDispatch();
 
   const isMenuOpen = Boolean(anchorEl);
@@ -158,22 +165,32 @@ export default function PrimarySearchAppBar({ routing }) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
+      <Link
+        to="/Wishlist"
+        style={{ textDecoration: "none", color: "currentColor" }}
+      >
+        <MenuItem>
+          <IconButton color="inherit">
+            <Badge badgeContent={wishesCount}>
+              <FavoriteBorderIcon />
+            </Badge>
+          </IconButton>
+          <p>Wishlist</p>
+        </MenuItem>
+      </Link>
+      <Link
+        to="/ShoppingCart"
+        style={{ textDecoration: "none", color: "currentColor" }}
+      >
+        <MenuItem>
+          <IconButton color="inherit">
+            <Badge badgeContent={cartCount} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+          <p>Shopping Cart</p>
+        </MenuItem>
+      </Link>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
@@ -216,18 +233,29 @@ export default function PrimarySearchAppBar({ routing }) {
               inputProps={{ "aria-label": "search" }}
             />
           </div>
+
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            <Link
+              to="/Wishlist"
+              style={{ textDecoration: "none", color: "currentColor" }}
+            >
+              <IconButton color="inherit">
+                <Badge badgeContent={wishesCount} color="error">
+                  <FavoriteBorderIcon />
+                </Badge>
+              </IconButton>
+            </Link>
+            <Link
+              to="/ShoppingCart"
+              style={{ textDecoration: "none", color: "currentColor" }}
+            >
+              <IconButton color="inherit">
+                <Badge badgeContent={cartCount} color="error">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            </Link>
             <IconButton
               edge="end"
               aria-label="account of current user"

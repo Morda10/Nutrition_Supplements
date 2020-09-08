@@ -1,6 +1,9 @@
 package com.ecommerce.nutritionsupplements.entity;
 
+import javax.management.BadAttributeValueExpException;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="item")
@@ -25,6 +28,11 @@ public class Item {
 
     @Column(name="image_id")
     private String imageId;
+
+    @OneToMany(fetch=FetchType.LAZY,
+            mappedBy="item",
+            cascade= {CascadeType.ALL})
+    private List<Wishlist> wishlist;
 
     public Item() {
     }
@@ -83,6 +91,48 @@ public class Item {
 
     public void setImageId(String imageId) {
         this.imageId = imageId;
+    }
+
+    public List<Wishlist> getWishlist() {
+        return wishlist;
+    }
+
+    public void setWishlist(List<Wishlist> wishlist) {
+        this.wishlist = wishlist;
+    }
+
+    public void addWish(Wishlist theWishlist){
+
+        if (wishlist == null) {
+            wishlist = new ArrayList<>();
+        }
+        wishlist.add(theWishlist);
+//        System.out.println(wishlist);
+    }
+
+    public int removeWish(Wishlist theWishlist) throws BadAttributeValueExpException {
+        boolean itemInList = false;
+        Wishlist tmp =null;
+//        System.out.println(wishlist);
+        for (Wishlist w:
+                wishlist) {
+            if(w.getItem().getId() == theWishlist.getItem().getId()) {
+                itemInList =true;
+                theWishlist.setId(w.getId());
+                tmp = w;
+            }
+        }
+        if ( wishlist == null || !itemInList) {
+            throw new BadAttributeValueExpException("Item " + theWishlist.getItem().getId() + " not at wishlist of " + theWishlist.getUser());
+        }
+        if(tmp!=null){
+
+            wishlist.remove(tmp);
+        }
+//        System.out.println(wishlist.contains(theWishlist));
+//        System.out.println(wishlist);
+        return theWishlist.getId();
+
     }
 
     @Override

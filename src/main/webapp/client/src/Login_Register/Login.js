@@ -10,11 +10,12 @@ import {
   CardContent,
   //   Box,
 } from "@material-ui/core";
-import MyTextField from "./Input";
+import MyTextField from "../UI/Forms/Input";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, setToken } from "./redux/actions/authActions";
+// import { setUser, setToken } from "../redux/actions/authActions";
+import { setUser, setToken } from "../redux/reducers/UserReducer";
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required("User name is required"),
@@ -26,17 +27,20 @@ const validationSchema = Yup.object().shape({
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: "2rem",
+    width: "30rem",
   },
   button: {
-    backgroundColor: "#202020",
+    backgroundColor: theme.palette.primary.main,
     color: "white",
+  },
+  form: {
+    display: "center",
   },
 }));
 
 const Login = () => {
   const history = useHistory();
   const user = useSelector((state) => state.user);
-  // const token = useSelector((state) => state.token);
   const dispatch = useDispatch();
   const classes = useStyles();
   const [errors, setErrors] = useState(null);
@@ -49,9 +53,16 @@ const Login = () => {
 
   return (
     <>
-      <Grid container justify="center" style={{ marginTop: "3em" }}>
-        <Grid item xs={10} sm={8} lg={6} xl={4}>
-          <Card className={classes.root}>
+      <Grid
+        container
+        spacing={0}
+        direction="row"
+        alignItems="center"
+        justify="center"
+        style={{ marginTop: "3em" }}
+      >
+        <Grid item>
+          <Card raised className={classes.root}>
             <CardContent display="flex">
               <Typography align="center" variant="h3">
                 Login
@@ -73,8 +84,8 @@ const Login = () => {
                     // console.log(data);
                     console.log(jwt);
                     const userDetails = { id: data, username: values.username };
-                    dispatch(setUser(jwt, userDetails));
-                    dispatch(setToken(jwt));
+                    dispatch(setUser({ user: jwt, userDetails: userDetails }));
+                    dispatch(setToken({ token: jwt }));
                     // console.log(data);
                     history.push("/Items");
                   } catch (e) {
@@ -86,12 +97,18 @@ const Login = () => {
               >
                 {(values, isSubmitting) => (
                   <Form>
-                    <MyTextField name="username" type="text" label="Username" />
+                    <MyTextField
+                      name="username"
+                      type="text"
+                      label="Username"
+                      fullWidth
+                    />
                     <br />
                     <MyTextField
                       name="password"
                       type="password"
                       label="Password "
+                      fullWidth
                     />
                     <br />
                     <Button
@@ -99,6 +116,7 @@ const Login = () => {
                       variant="contained"
                       disabled={isSubmitting}
                       type="submit"
+                      fullWidth
                     >
                       Login
                     </Button>

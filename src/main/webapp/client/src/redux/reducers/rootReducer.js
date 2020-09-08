@@ -1,26 +1,16 @@
-import { SET_USER, SET_TOKEN } from "../types";
+import { persistReducer } from "redux-persist";
 
-const initialState = {
-  user: null,
-  userDetails: null,
-  token: null,
+import storage from "redux-persist/lib/storage"; // for local storage use
+import { UserReducer } from "./UserReducer";
+//or
+// import storageSession from 'redux-persist/lib/storage/session' // for session storage
+
+const persistConfig = {
+  key: "root",
+  storage,
+  whitlist: ["rootReducer"],
 };
 
-export const rootReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case SET_USER:
-      return {
-        ...state,
-        user: action.payload,
-        userDetails: action.userDetails,
-      };
-    case SET_TOKEN:
-      return {
-        ...state,
-        token: action.payload,
-      };
+const rootReducer = UserReducer;
 
-    default:
-      return state;
-  }
-};
+export default persistReducer(persistConfig, rootReducer);

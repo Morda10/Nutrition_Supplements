@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import {
@@ -7,14 +7,13 @@ import {
   Button,
   Grid,
   Typography,
-  Checkbox,
-  FormControlLabel,
+  // Checkbox,
+  // FormControlLabel,
 } from "@material-ui/core";
-import MyTextField from "./Input";
+import MyTextField from "../UI/Forms/Input";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import Axios from "axios";
 
 const validationSchema = Yup.object().shape({
   userName: Yup.string().required("userName is required"),
@@ -30,7 +29,7 @@ const validationSchema = Yup.object().shape({
     .oneOf([Yup.ref("password"), null], "Password doesnt match"),
 });
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: "2rem",
   },
@@ -38,10 +37,10 @@ const useStyles = makeStyles({
     fontSize: 14,
   },
   button: {
-    backgroundColor: "#202020",
+    backgroundColor: theme.palette.primary.main,
     color: "white",
   },
-});
+}));
 
 const Register = () => {
   const history = useHistory();
@@ -49,7 +48,7 @@ const Register = () => {
 
   return (
     <Grid container justify="center" style={{ marginTop: "3em" }}>
-      <Grid item xs={10} sm={8} lg={6}>
+      <Grid item xs={8} sm={6} lg={6} xl={4}>
         <Card className={classes.root}>
           <CardContent>
             <Typography align="center" variant="h3">
@@ -79,7 +78,12 @@ const Register = () => {
             >
               {(values, isSubmitting) => (
                 <Form>
-                  <MyTextField name="userName" type="text" label="User Name " />
+                  <MyTextField
+                    name="userName"
+                    type="text"
+                    label="User Name "
+                    fullWidth
+                  />
                   <br />
                   {/* <MyTextField
                     name="email"
@@ -91,12 +95,14 @@ const Register = () => {
                     name="password"
                     type="password"
                     label="Password "
+                    fullWidth
                   />
                   <br />
                   <MyTextField
                     name="repass"
                     type="password"
                     label="Renter password "
+                    fullWidth
                   />
                   <br />
                   {/* <FormControlLabel

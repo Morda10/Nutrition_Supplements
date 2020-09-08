@@ -160,7 +160,7 @@ public class ItemRestController {
 		List<Item> wishlistItems = new ArrayList<>();
 
 		for (Wishlist w: userWishlist) {
-			Item item = itemService.findById(w.getItemId());
+			Item item = itemService.findById(w.getItem().getId());
 			wishlistItems.add(item);
 		}
 
@@ -170,11 +170,13 @@ public class ItemRestController {
 	@PostMapping("/user/addToWishlist")
 	public String addItemToWishlist(@RequestBody Wish theWish) {
 		User user;
-		Wishlist theWishlist = new Wishlist(theWish.getItemId());
+		Item item;
+		Wishlist theWishlist = new Wishlist();
 
 //		System.out.println(theWish.getUserId());
 		try{
 			 user = userService.findById(theWish.getUserId());
+			 item = itemService.findById(theWish.getItemId());
 			 theWishlist.setUser(user);
 		}
 		catch (RuntimeException e){
@@ -184,7 +186,9 @@ public class ItemRestController {
 		try{
 //			System.out.println(user);
 			user.addWish(theWishlist);
+			item.addWish(theWishlist);
 			userService.save(user);
+			itemService.save(item);
 		}
 		catch(Exception exception){
 			System.out.println(exception.getMessage());
@@ -199,11 +203,12 @@ public class ItemRestController {
 	public String removeFromWishlist(@RequestBody Wish theWish) {
 		System.out.println(theWish);
 		User user;
-		Wishlist theWishlist = new Wishlist(theWish.getItemId());
+		Item item;
+		Wishlist theWishlist = new Wishlist();
 
 		try{
 			 user = userService.findById(theWish.getUserId());
-
+			 item = itemService.findById(theWish.getItemId());
 //			 wish = wishlistService.findByUserIdAndItemId(theWishlist.getUserId(), theWishlist.getItemId());
 //			System.out.println(wish);
 		}
@@ -213,9 +218,11 @@ public class ItemRestController {
 
 		try{
 			user.removeWish(theWishlist);
+			item.removeWish(theWishlist);
 //			System.out.println(theWishlist.getId());
 			wishlistService.deleteById(theWishlist.getId());
 			userService.save(user);
+			itemService.save(item);
 
 		}
 		catch(BadAttributeValueExpException exception){
