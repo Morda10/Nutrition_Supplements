@@ -71,6 +71,7 @@ export const Item = ({ item, setitem, fetchUserdata, config, userDetails }) => {
 
   useEffect(() => {
     const f = () => {
+      console.log(wishlist);
       wishlist.map((w) => {
         if (w.id === item.id) setLiked(true);
         return true;
@@ -79,7 +80,7 @@ export const Item = ({ item, setitem, fetchUserdata, config, userDetails }) => {
     f();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wishlist]);
 
   const handleWishlist = async (item) => {
     try {

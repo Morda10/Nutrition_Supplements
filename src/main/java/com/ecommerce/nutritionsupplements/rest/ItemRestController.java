@@ -8,10 +8,12 @@ import java.util.Optional;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.ecommerce.nutritionsupplements.entity.*;
+import com.ecommerce.nutritionsupplements.models.CartItem;
 import com.ecommerce.nutritionsupplements.models.Wish;
 import com.ecommerce.nutritionsupplements.service.ItemService;
+import com.ecommerce.nutritionsupplements.service.UserCartService;
 import com.ecommerce.nutritionsupplements.service.UserService;
-import com.ecommerce.nutritionsupplements.service.WishlistService;
+//import com.ecommerce.nutritionsupplements.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +29,8 @@ public class ItemRestController {
 
 	private ItemService itemService;
 	private UserService userService;
-	private WishlistService wishlistService;
+	private UserCartService userCartService;
+//	private WishlistService wishlistService;
 
 
 
@@ -38,20 +41,27 @@ public class ItemRestController {
 
 
 	@Autowired
-	public ItemRestController(ItemService theitemService, UserService theuserService, WishlistService thewishlistService) {
+	public ItemRestController(ItemService theitemService, UserService theuserService, UserCartService theUserCartService) {
 
 		itemService = theitemService;
 		userService = theuserService;
-		wishlistService = thewishlistService;
+		userCartService = theUserCartService;
+//		wishlistService = thewishlistService;
 	}
+
 
 
 	@GetMapping("/items")
 	public List<Item> findAll() {
-		return itemService.findAll();
+		List<Item> items = itemService.findAll();
+//		System.out.println(items);
+//		for (Item i:
+//			 items) {
+//			System.out.println(i.getUsers());
+//		}
+		return items;
 	}
 
-	
 	@GetMapping("/items/{itemId}")
 	public Item getItem(@PathVariable int itemId) {
 
@@ -63,8 +73,6 @@ public class ItemRestController {
 		
 		return theItem;
 	}
-	
-
 	
 	@PostMapping("/items")
 	public Item addItem(@RequestBody Item theItem) {
@@ -79,8 +87,6 @@ public class ItemRestController {
 		return theItem;
 	}
 	
-
-	
 	@PutMapping("/items")
 	public Item updateItem(@RequestBody Item theItem) {
 
@@ -88,9 +94,7 @@ public class ItemRestController {
 		
 		return theItem;
 	}
-	
 
-	
 	@DeleteMapping("/items/{itemId}")
 	public String deleteItem(@PathVariable int itemId) {
 
@@ -130,8 +134,6 @@ public class ItemRestController {
 		return "Deleted image id - " + imageId;
 	}
 
-
-
 	@PostMapping("/items/addHistory")
 	public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
 
@@ -143,52 +145,75 @@ public class ItemRestController {
 	}
 
 	@PostMapping("/items/addToCart")
-	public UserCart addItemToHistory(@RequestBody UserCart theUserCart) {
+	public String addItemToCart(@RequestBody CartItem cartitem) {
 
-		User user = userService.findById(theUserCart.getUserId());
-		user.addToCart(theUserCart);
-		userService.save(user);
-
-		return theUserCart;
-	}
-
-	@GetMapping("/user/getWishlist/{theid}")
-	public List<Item> getWishlistByUserId(@PathVariable int theid) {
-
-		User user = userService.findById(theid);
-		List<Wishlist> userWishlist = user.getWishlist();
-		List<Item> wishlistItems = new ArrayList<>();
-
-		for (Wishlist w: userWishlist) {
-			Item item = itemService.findById(w.getItem().getId());
-			wishlistItems.add(item);
-		}
-
-		return wishlistItems;
-	}
-
-	@PostMapping("/user/addToWishlist")
-	public String addItemToWishlist(@RequestBody Wish theWish) {
 		User user;
 		Item item;
-		Wishlist theWishlist = new Wishlist();
 
-//		System.out.println(theWish.getUserId());
 		try{
-			 user = userService.findById(theWish.getUserId());
-			 item = itemService.findById(theWish.getItemId());
-			 theWishlist.setUser(user);
+			user = userService.findById(cartitem.getUserId());
+			item = itemService.findById(cartitem.getItemId());
 		}
 		catch (RuntimeException e){
 			return e.getMessage();
 		}
 
 		try{
-//			System.out.println(user);
-			user.addWish(theWishlist);
-			item.addWish(theWishlist);
+			UserCart userCart = new UserCart(user,item, cartitem.getAmount());
+			System.out.println(user.getUserCartList().contains(userCart));
+			if(user.getUserCartList().contains(userCart)) throw  new Exception("");
+//			user.addToCart(userCart, item);
+			userCartService.save(userCart);
+//			userService.save(user);
+//			itemService.save(item);
+		}
+		catch(Exception exception){
+			System.out.println(exception.getMessage());
+			return "item already exists at cart";
+
+		}
+
+		return "Item added to your cart";
+	}
+
+	@DeleteMapping("/items/removeFromCart")
+	public String removeFromCart(@RequestBody UserCartKey cartitemId) {
+		try{
+			userCartService.deleteById(cartitemId);
+		}
+		catch (RuntimeException e){
+			System.out.println(e.getMessage());
+			return "something went wrong";
+		}
+		return "item removed from cart";
+	}
+
+	@GetMapping("/user/getWishlist/{theid}")
+	public List<Item> getWishlistByUserId(@PathVariable int theid) {
+
+		User user = userService.findById(theid);
+		List<Item> userWishlist = user.getWishlist();
+
+		return userWishlist;
+	}
+
+	@PostMapping("/user/addToWishlist")
+	public String addItemToWishlist(@RequestBody Wish theWish) {
+		User user;
+		Item item;
+
+//		System.out.println(theWish.getUserId());
+		try{
+			 user = userService.findById(theWish.getUserId());
+			 item = itemService.findById(theWish.getItemId());
+		}
+		catch (RuntimeException e){
+			return e.getMessage();
+		}
+
+		try{
+			user.addWish(item);
 			userService.save(user);
-			itemService.save(item);
 		}
 		catch(Exception exception){
 			System.out.println(exception.getMessage());
@@ -204,25 +229,18 @@ public class ItemRestController {
 		System.out.println(theWish);
 		User user;
 		Item item;
-		Wishlist theWishlist = new Wishlist();
 
 		try{
 			 user = userService.findById(theWish.getUserId());
 			 item = itemService.findById(theWish.getItemId());
-//			 wish = wishlistService.findByUserIdAndItemId(theWishlist.getUserId(), theWishlist.getItemId());
-//			System.out.println(wish);
-		}
+			}
 		catch (RuntimeException e){
 			return e.getMessage();
 		}
 
 		try{
-			user.removeWish(theWishlist);
-			item.removeWish(theWishlist);
-//			System.out.println(theWishlist.getId());
-			wishlistService.deleteById(theWishlist.getId());
+			user.removeWish(item);
 			userService.save(user);
-			itemService.save(item);
 
 		}
 		catch(BadAttributeValueExpException exception){

@@ -38,8 +38,8 @@ export const Wishlist = () => {
   };
 
   useEffect(() => {
-    console.log(wishlist);
     if (!wishlist) {
+      console.log(wishlist);
       const fetchUserdata = async () => {
         try {
           const res = await axios.get("/api/items/", config);

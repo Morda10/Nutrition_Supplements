@@ -24,9 +24,10 @@ export const Items = () => {
 
   const fetchUserdata = async () => {
     try {
-      console.log(items);
+      console.log(typeof items);
       // if (items === null) {
       const res = await axios.get("/api/items/", config);
+      console.log(res);
       dispatch(setItems({ items: res.data }));
       // }
       // if (!wishlist) {
@@ -40,7 +41,7 @@ export const Items = () => {
   };
 
   useEffect(() => {
-    // console.log("object1");
+    console.log("object1");
     fetchUserdata();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,10 +49,10 @@ export const Items = () => {
 
   useEffect(() => {
     // console.log("object2");
-    const tmp = [];
-    wishlist.forEach((w) => {
-      tmp.push(w.id);
-    });
+    // const tmp = [];
+    // wishlist.forEach((w) => {
+    //   tmp.push(w.id);
+    // });
     dispatch(setWishes({ wishlist: wishlist }));
     dispatch(setItems({ items: items }));
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -12,14 +12,14 @@ import { MuiThemeProvider, CssBaseline } from "@material-ui/core";
 import theme from "./UI/Theme";
 
 const persistStorage = JSON.parse(localStorage.getItem("persist:root"));
-console.log(persistStorage);
+// console.log(persistStorage);
 
 //load user when refresh
 if (persistStorage && persistStorage.token !== null) {
   try {
     const currentTime = Date.now() / 1000;
     const t = persistStorage.token;
-    console.log(persistStorage.token);
+    // console.log(persistStorage.token);
     let decoded;
     decoded = jwt_decode(persistStorage.token);
     if (decoded.exp < currentTime) {

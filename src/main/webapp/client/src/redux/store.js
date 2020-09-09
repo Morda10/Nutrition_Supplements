@@ -12,6 +12,7 @@ import thunk from "redux-thunk";
 //   reducer: rootReducer,
 //   middleware: [logger, ...getDefaultMiddleware()],
 // });
+
 export const store = configureStore({
   reducer: rootReducer,
   middleware: [logger, thunk],

@@ -3,7 +3,9 @@ package com.ecommerce.nutritionsupplements.entity;
 import javax.management.BadAttributeValueExpException;
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="item")
@@ -11,7 +13,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name="item_id")
     private int id;
 
     @Column(name="name")
@@ -29,10 +31,16 @@ public class Item {
     @Column(name="image_id")
     private String imageId;
 
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy="item",
-            cascade= {CascadeType.ALL})
-    private List<Wishlist> wishlist;
+//    @OneToMany(fetch=FetchType.LAZY,
+//            mappedBy="item",
+//            cascade= {CascadeType.ALL})
+//    private List<Wishlist> wishlist;
+
+    @ManyToMany(mappedBy = "userWishlist")
+    private List<User> users;
+
+    @OneToMany(mappedBy = "item")
+    List<UserCart> cart = new ArrayList<>();
 
     public Item() {
     }
@@ -93,47 +101,21 @@ public class Item {
         this.imageId = imageId;
     }
 
-    public List<Wishlist> getWishlist() {
-        return wishlist;
+    public List<UserCart> getCart() {
+        return cart;
     }
 
-    public void setWishlist(List<Wishlist> wishlist) {
-        this.wishlist = wishlist;
+    public void setCart(List<UserCart> cart) {
+        this.cart = cart;
     }
 
-    public void addWish(Wishlist theWishlist){
-
-        if (wishlist == null) {
-            wishlist = new ArrayList<>();
+    @PreRemove
+    private void removeItemsFromUsers() {
+        for (User u : users) {
+            u.getWishlist().remove(this);
         }
-        wishlist.add(theWishlist);
-//        System.out.println(wishlist);
     }
 
-    public int removeWish(Wishlist theWishlist) throws BadAttributeValueExpException {
-        boolean itemInList = false;
-        Wishlist tmp =null;
-//        System.out.println(wishlist);
-        for (Wishlist w:
-                wishlist) {
-            if(w.getItem().getId() == theWishlist.getItem().getId()) {
-                itemInList =true;
-                theWishlist.setId(w.getId());
-                tmp = w;
-            }
-        }
-        if ( wishlist == null || !itemInList) {
-            throw new BadAttributeValueExpException("Item " + theWishlist.getItem().getId() + " not at wishlist of " + theWishlist.getUser());
-        }
-        if(tmp!=null){
-
-            wishlist.remove(tmp);
-        }
-//        System.out.println(wishlist.contains(theWishlist));
-//        System.out.println(wishlist);
-        return theWishlist.getId();
-
-    }
 
     @Override
     public String toString() {

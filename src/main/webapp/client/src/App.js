@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      setRouting([{ to: "/Items", name: "Home" }]);
+      setRouting([{ to: "/", name: "Home" }]);
     }
   }, [user]);
 
@@ -28,7 +28,7 @@ function App() {
         <MyNavbar routing={routing} />
         <Switch>
           <Route exact path="/Login" component={Login} />
-          <Route exact path="/Items" component={Items} />
+          <Route exact path="/" component={Items} />
           <Route exact path="/Register" component={Register} />
           <Route exact path="/Wishlist" component={Wishlist} />
           <Route exact path="/ShoppingCart" component={ShoppingCart} />

@@ -1,10 +1,11 @@
 import { createMuiTheme } from "@material-ui/core/styles";
 
-const mainBlue = "#32709F";
+const mainBlue = "#181836";
 // const arcOrange = "#FFBA60";
-const mainGrey = "#92969a";
+const mainGrey = "#476CC0";
 const errorColor = "#DB1616";
-const backGround = "rgb(224, 226, 233)";
+const backGround = "#A8B2CA";
+// const backGround = "rgb(224, 226, 233)";
 
 export default createMuiTheme({
   palette: {

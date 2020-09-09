@@ -47,7 +47,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      history.push("/Items");
+      history.push("/");
     }
   }, [user, history]);
 
@@ -87,7 +87,7 @@ const Login = () => {
                     dispatch(setUser({ user: jwt, userDetails: userDetails }));
                     dispatch(setToken({ token: jwt }));
                     // console.log(data);
-                    history.push("/Items");
+                    history.push("/");
                   } catch (e) {
                     // console.log(e.name);
                     setErrors(e.message);

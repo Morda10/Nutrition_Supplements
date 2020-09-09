@@ -3,7 +3,9 @@ package com.ecommerce.nutritionsupplements.entity;
 import javax.management.BadAttributeValueExpException;
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -11,7 +13,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name="user_id")
     private int id;
 
     @Column(name="user_name")
@@ -26,18 +28,26 @@ public class User {
     @Column(name="roles")
     private String roles;
 
-    @OneToMany(fetch=FetchType.LAZY,
-            mappedBy="user",
-            cascade= {CascadeType.ALL})
-    private List<Wishlist> wishlist;
+//    @OneToMany(fetch=FetchType.LAZY,
+//            mappedBy="user",
+//            cascade= {CascadeType.ALL})
+//    private List<Wishlist> wishlist;
+
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "wishlist",
+            joinColumns = { @JoinColumn(name = "user_id_wishlist") },
+            inverseJoinColumns = { @JoinColumn(name = "wished_item") }
+    )
+    List<Item> userWishlist;
+
+    @OneToMany(mappedBy = "user")
+    List<UserCart> cart;
 
     @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
     @JoinColumn(name="user_id_history")
     private List<ShopHistory> shopHistoryList;
 
-    @OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-    @JoinColumn(name="user_id_kart")
-    private List<UserCart> userCartList;
 
     public User(){}
 
@@ -88,13 +98,13 @@ public class User {
         this.roles = roles;
     }
 
-    public List<Wishlist> getWishlist() {
-        return wishlist;
-    }
-
-    public void setWishlist(List<Wishlist> wishlist) {
-        this.wishlist = wishlist;
-    }
+//    public List<Wishlist> getWishlist() {
+//        return wishlist;
+//    }
+//
+//    public void setWishlist(List<Wishlist> wishlist) {
+//        this.wishlist = wishlist;
+//    }
 
     public List<ShopHistory> getShopHistoryList() {
         return shopHistoryList;
@@ -104,46 +114,64 @@ public class User {
         this.shopHistoryList = shopHistoryList;
     }
 
-    public List<UserCart> getUserKartList() {
-        return userCartList;
+    public List<UserCart> getUserCartList() {
+        return cart;
     }
 
-    public void setUserKartList(List<UserCart> userCartList) {
-        this.userCartList = userCartList;
+    public void setUserCartList(List<UserCart> userCartList) {
+        this.cart = userCartList;
     }
 
-    public void addWish(Wishlist theWishlist){
+    public List<Item> getWishlist() {
+        return userWishlist;
+    }
 
-        if (wishlist == null) {
-            wishlist = new ArrayList<>();
+    public void setWishlist(List<Item> wishlist) {
+        this.userWishlist = wishlist;
+    }
+
+    public void addWish(Item theWish){
+        if (userWishlist == null) {
+            userWishlist = new ArrayList<>();
         }
-        wishlist.add(theWishlist);
+        userWishlist.add(theWish);
 //        System.out.println(wishlist);
     }
 
-    public int removeWish(Wishlist theWishlist) throws BadAttributeValueExpException {
+    public int removeWish(Item theWish) throws BadAttributeValueExpException {
         boolean itemInList = false;
-        Wishlist tmp =null;
+        Item tmp =null;
 //        System.out.println(wishlist);
-        for (Wishlist w:
-             wishlist) {
-            if(w.getItem().getId() == theWishlist.getItem().getId()) {
+        for (Item w:
+                userWishlist) {
+            if(w.getId() == theWish.getId()) {
                 itemInList =true;
-                theWishlist.setId(w.getId());
+//                theWish.setId(w.getId());
                 tmp = w;
             }
         }
-        if ( wishlist == null || !itemInList) {
-            throw new BadAttributeValueExpException("Item " + theWishlist.getItem().getId() + " not at wishlist of " + theWishlist.getUser());
+        if ( userWishlist == null || !itemInList) {
+            throw new BadAttributeValueExpException("Item " + theWish.getId() + " not at wishlist of " + this);
         }
         if(tmp!=null){
 
-        wishlist.remove(tmp);
+            userWishlist.remove(tmp);
         }
 //        System.out.println(wishlist.contains(theWishlist));
 //        System.out.println(wishlist);
-        return theWishlist.getId();
+        return theWish.getId();
 
+    }
+
+    public void addToCart(UserCart itemToAdd, Item theItem) {
+        if (cart == null) {
+            cart = new ArrayList<>();
+        }
+
+        cart.add(itemToAdd);
+//        itemToAdd.getItem().getCart().add(itemToAdd);
+        theItem.getCart().add(itemToAdd);
+        System.out.println(cart);
     }
 
     public void addHistory(ShopHistory theShopHistory) {
@@ -155,14 +183,6 @@ public class User {
         shopHistoryList.add(theShopHistory);
     }
 
-    public void addToCart(UserCart theUserCart) {
-
-        if (userCartList == null) {
-            userCartList = new ArrayList<>();
-        }
-
-        userCartList.add(theUserCart);
-    }
 
     @Override
     public String toString() {
