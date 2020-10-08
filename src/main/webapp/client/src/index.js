@@ -24,7 +24,7 @@ if (persistStorage && persistStorage.token !== null) {
     decoded = jwt_decode(persistStorage.token);
     if (decoded.exp < currentTime) {
       store.dispatch(logout());
-      window.location.href = "/Login";
+      window.location.href = "/";
     } else {
       store.dispatch(setUser(persistStorage.token, persistStorage.userDetails));
       store.dispatch(setToken(t));

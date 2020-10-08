@@ -23,16 +23,13 @@ import javax.management.BadAttributeValueExpException;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/items")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ItemRestController {
 
 	private ItemService itemService;
 	private UserService userService;
 	private UserCartService userCartService;
-//	private WishlistService wishlistService;
-
-
 
 	Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
 			"cloud_name", "itemsrestcloud",
@@ -46,23 +43,17 @@ public class ItemRestController {
 		itemService = theitemService;
 		userService = theuserService;
 		userCartService = theUserCartService;
-//		wishlistService = thewishlistService;
 	}
 
 
 
-	@GetMapping("/items")
+	@GetMapping("/getAllItems")
 	public List<Item> findAll() {
 		List<Item> items = itemService.findAll();
-//		System.out.println(items);
-//		for (Item i:
-//			 items) {
-//			System.out.println(i.getUsers());
-//		}
 		return items;
 	}
 
-	@GetMapping("/items/{itemId}")
+	@GetMapping("/getItemById/{itemId}")
 	public Item getItem(@PathVariable int itemId) {
 
 		Item theItem = itemService.findById(itemId);
@@ -74,11 +65,8 @@ public class ItemRestController {
 		return theItem;
 	}
 	
-	@PostMapping("/items")
+	@PostMapping("/addItem")
 	public Item addItem(@RequestBody Item theItem) {
-		
-		// also just in case they pass an id in JSON ... set id to 0
-		// this is to force a save of new item ... instead of update
 
 		theItem.setId(0);
 
@@ -87,7 +75,7 @@ public class ItemRestController {
 		return theItem;
 	}
 	
-	@PutMapping("/items")
+	@PutMapping("/updateItem")
 	public Item updateItem(@RequestBody Item theItem) {
 
 		itemService.save(theItem);
@@ -95,24 +83,31 @@ public class ItemRestController {
 		return theItem;
 	}
 
-	@DeleteMapping("/items/{itemId}")
+	@DeleteMapping("deleteItemById/{itemId}")
 	public String deleteItem(@PathVariable int itemId) {
+		try {
 
-		Item tempItem = itemService.findById(itemId);
-		
-		// throw exception if null
-		
-		if (tempItem == null) {
-			throw new RuntimeException("Item id not found - " + itemId);
+			Item tempItem = itemService.findById(itemId);
+			List<UserCart> userCarts = userCartService.findAllByItem(tempItem);
+			userCartService.deleteAll(userCarts);
+			// throw exception if null
+
+			if (tempItem == null) {
+				throw new RuntimeException("Item id not found - " + itemId);
+			}
+
+			itemService.deleteById(itemId);
+
+			return "Deleted item id - " + itemId;
 		}
-
-		itemService.deleteById(itemId);
-		
-		return "Deleted item id - " + itemId;
+		catch (Exception e){
+			System.out.println(e.getMessage());
+			return "something went wrong";
+		}
 	}
 
 //	CLOUDINARY_URL=cloudinary://651238569588643:Xdt0iDHEB9OYRsSIoJWoG-F2Av4@itemsrestcloud
-	@PostMapping(path = "/image",
+	@PostMapping(path = "/image/addImage",
 			consumes = {"multipart/form-data"})
 	public List<Object> addImage(@RequestParam(value = "image", required = true) final MultipartFile theImage) throws IOException {
 
@@ -124,7 +119,7 @@ public class ItemRestController {
 		return object;
 	}
 
-	@DeleteMapping("/image/{imageId}")
+	@DeleteMapping("/image/deleteImageById/{imageId}")
 	public String deleteItem(@PathVariable String imageId) throws IOException {
 
 		Map res = cloudinary.uploader().destroy(imageId,
@@ -134,139 +129,142 @@ public class ItemRestController {
 		return "Deleted image id - " + imageId;
 	}
 
-	@PostMapping("/items/addHistory")
-	public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
-
-		User user = userService.findById(theShopHistory.getUserId());
-		user.addHistory(theShopHistory);
-		userService.save(user);
-
-		return theShopHistory;
-	}
-
-	@PostMapping("/items/addToCart")
-	public String addItemToCart(@RequestBody CartItem cartitem) {
-
-		User user;
-		Item item;
-
-		try{
-			user = userService.findById(cartitem.getUserId());
-			item = itemService.findById(cartitem.getItemId());
-		}
-		catch (RuntimeException e){
-			return e.getMessage();
-		}
-
-		try{
-			UserCart userCart = new UserCart(user,item, cartitem.getAmount());
-			System.out.println(user.getUserCartList().contains(userCart));
-			if(user.getUserCartList().contains(userCart)) throw  new Exception("");
-//			user.addToCart(userCart, item);
-			userCartService.save(userCart);
-//			userService.save(user);
-//			itemService.save(item);
-		}
-		catch(Exception exception){
-			System.out.println(exception.getMessage());
-			return "item already exists at cart";
-
-		}
-
-		return "Item added to your cart";
-	}
-
-	@DeleteMapping("/items/removeFromCart")
-	public String removeFromCart(@RequestBody UserCartKey cartitemId) {
-		try{
-			userCartService.deleteById(cartitemId);
-		}
-		catch (RuntimeException e){
-			System.out.println(e.getMessage());
-			return "something went wrong";
-		}
-		return "item removed from cart";
-	}
-
-	@GetMapping("/user/getWishlist/{theid}")
-	public List<Item> getWishlistByUserId(@PathVariable int theid) {
-
-		User user = userService.findById(theid);
-		List<Item> userWishlist = user.getWishlist();
-
-		return userWishlist;
-	}
-
-	@PostMapping("/user/addToWishlist")
-	public String addItemToWishlist(@RequestBody Wish theWish) {
-		User user;
-		Item item;
-
-//		System.out.println(theWish.getUserId());
-		try{
-			 user = userService.findById(theWish.getUserId());
-			 item = itemService.findById(theWish.getItemId());
-		}
-		catch (RuntimeException e){
-			return e.getMessage();
-		}
-
-		try{
-			user.addWish(item);
-			userService.save(user);
-		}
-		catch(Exception exception){
-			System.out.println(exception.getMessage());
-			return "item already exists at wishlist\n";
-
-		}
-
-		return "item added to wishlist";
-	}
-
-	@DeleteMapping("/user/removeFromWishlist")
-	public String removeFromWishlist(@RequestBody Wish theWish) {
-		System.out.println(theWish);
-		User user;
-		Item item;
-
-		try{
-			 user = userService.findById(theWish.getUserId());
-			 item = itemService.findById(theWish.getItemId());
-			}
-		catch (RuntimeException e){
-			return e.getMessage();
-		}
-
-		try{
-			user.removeWish(item);
-			userService.save(user);
-
-		}
-		catch(BadAttributeValueExpException exception){
-			System.out.println(exception);
-			return exception.toString();
-
-		}
-
-		return "item removed from wishlist";
-	}
-
-//	@DeleteMapping("/items/{itemId}")
-//	public String deleteItem(@PathVariable int itemId) {
+//	@PostMapping("/items/addHistory")
+//	public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
 //
-//		Item tempItem = itemService.findById(itemId);
+//		User user = userService.findById(theShopHistory.getUserId());
+//		user.addHistory(theShopHistory);
+//		userService.save(user);
 //
-//		// throw exception if null
+//		return theShopHistory;
+//	}
 //
-//		if (tempItem == null) {
-//			throw new RuntimeException("Item id not found - " + itemId);
+//	@PostMapping("/items/addToCart")
+//	public String addItemToCart(@RequestBody CartItem cartitem) {
+//
+//		User user;
+//		Item item;
+//
+//		try{
+//			user = userService.findById(cartitem.getUserId());
+//			item = itemService.findById(cartitem.getItemId());
+//		}
+//		catch (RuntimeException e){
+//			return e.getMessage();
 //		}
 //
-//		itemService.deleteById(itemId);
+//		try{
+//			UserCart userCart = new UserCart(user,item, cartitem.getAmount());
+//			System.out.println(user.getUserCartList().contains(userCart));
+//			if(user.getUserCartList().contains(userCart)) throw  new Exception("");
+//			userCartService.save(userCart);
+//		}
+//		catch(Exception exception){
+//			System.out.println(exception.getMessage());
+//			return "item already exists at cart";
 //
-//		return "Deleted item id - " + itemId;
+//		}
+//
+//		return "Item added to your cart";
 //	}
+//
+//	@DeleteMapping("/items/removeFromCart")
+//	public String removeFromCart(@RequestBody UserCartKey cartitemId) {
+//		try{
+//			userCartService.deleteById(cartitemId);
+//		}
+//		catch (RuntimeException e){
+//			System.out.println(e.getMessage());
+//			return "something went wrong";
+//		}
+//		return "item removed from cart";
+//	}
+//
+//	@GetMapping("/items/getCart/{theid}")
+//	public List<UserCart> getCartByUserId(@PathVariable int theid) {
+//
+//	try {
+//		User user = userService.findById(theid);
+//		List<Item> userCart = new ArrayList<>();
+//		List<UserCart> userCartList = userCartService.findAllByUser(user);
+//		for (UserCart u:
+//				userCartList) {
+//			userCart.add(u.getItem());
+//		}
+//
+//		return userCartList;
+////		return userCart;
+//	}
+//	catch (Exception e){
+//		System.out.println(e.getMessage());
+//		return new ArrayList<>();
+//	}
+//	}
+//
+//	@GetMapping("/user/getWishlist/{theid}")
+//	public List<Item> getWishlistByUserId(@PathVariable int theid) {
+//
+//		User user = userService.findById(theid);
+//		List<Item> userWishlist = user.getWishlist();
+//
+//		return userWishlist;
+//	}
+//
+//	@PostMapping("/user/addToWishlist")
+//	public String addItemToWishlist(@RequestBody Wish theWish) {
+//		User user;
+//		Item item;
+//
+////		System.out.println(theWish.getUserId());
+//		try{
+//			 user = userService.findById(theWish.getUserId());
+//			 item = itemService.findById(theWish.getItemId());
+//		}
+//		catch (RuntimeException e){
+//			return e.getMessage();
+//		}
+//
+//		try{
+//			user.addWish(item);
+//			userService.save(user);
+//		}
+//		catch(Exception exception){
+//			System.out.println(exception.getMessage());
+//			return "item already exists at wishlist\n";
+//
+//		}
+//
+//		return "item added to wishlist";
+//	}
+//
+//	@DeleteMapping("/user/removeFromWishlist")
+//	public String removeFromWishlist(@RequestBody Wish theWish) {
+//		System.out.println(theWish);
+//		User user;
+//		Item item;
+//
+//		try{
+//			 user = userService.findById(theWish.getUserId());
+//			 item = itemService.findById(theWish.getItemId());
+//			}
+//		catch (RuntimeException e){
+//			return e.getMessage();
+//		}
+//
+//		try{
+//			user.removeWish(item);
+//			userService.save(user);
+//
+//		}
+//		catch(BadAttributeValueExpException exception){
+//			System.out.println(exception);
+//			return exception.toString();
+//
+//		}
+//
+//		return "item removed from wishlist";
+//	}
+
 
 }
 

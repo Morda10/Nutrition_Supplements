@@ -1,5 +1,9 @@
 package com.ecommerce.nutritionsupplements.entity;
 
+import com.ecommerce.nutritionsupplements.repository.UserCartRepository;
+import com.ecommerce.nutritionsupplements.service.UserCartService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.management.BadAttributeValueExpException;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -101,9 +105,9 @@ public class Item {
         this.imageId = imageId;
     }
 
-    public List<UserCart> getCart() {
-        return cart;
-    }
+//    public List<UserCart> getCart() {
+//        return cart;
+//    }
 
     public void setCart(List<UserCart> cart) {
         this.cart = cart;
@@ -111,6 +115,7 @@ public class Item {
 
     @PreRemove
     private void removeItemsFromUsers() {
+
         for (User u : users) {
             u.getWishlist().remove(this);
         }

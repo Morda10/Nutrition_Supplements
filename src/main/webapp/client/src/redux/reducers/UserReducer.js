@@ -1,11 +1,3 @@
-// import {
-//   SET_USER,
-//   SET_TOKEN,
-//   SET_WISHLIST,
-//   SET_ITEMS,
-//   SET_CART,
-//   SET_USER_LOGOUT,
-// } from "../types";
 import { createReducer, createAction } from "@reduxjs/toolkit";
 import jwt_decode from "jwt-decode";
 
@@ -15,6 +7,9 @@ export const setToken = createAction("setToken");
 export const setWishes = createAction("setWishes");
 export const setItems = createAction("setItems");
 export const setCart = createAction("setCart");
+export const setIsAdmin = createAction("setIsAdmin");
+export const setPresentedItems = createAction("setPresentedItems");
+export const setNoitems = createAction("setNoitems");
 
 const initialState = {
   user: null,
@@ -25,6 +20,11 @@ const initialState = {
   wishesCount: 0,
   cartCount: 0,
   items: [],
+  noItemImage:
+    "https://res.cloudinary.com/itemsrestcloud/image/upload/v1596906678/none_kqgfrl.png",
+  isAdmin: false,
+  presentedItems: [],
+  noItems: false,
 };
 
 export const UserReducer = createReducer(initialState, {
@@ -44,6 +44,8 @@ export const UserReducer = createReducer(initialState, {
       wishesCount: 0,
       cartCount: 0,
       items: [],
+      isAdmin: false,
+      presentedItems: [],
     };
     return state;
   },
@@ -58,59 +60,25 @@ export const UserReducer = createReducer(initialState, {
   },
   [setItems]: (state, action) => {
     state.items = action.payload.items;
+    state.presentedItems = action.payload.items;
+    state.noItems = false;
     return state;
   },
   [setCart]: (state, action) => {
     state.cart = action.payload.cart;
-    state.cartCount = action.payload.cart.length;
+    if (action.payload.cart) state.cartCount = action.payload.cart.length;
+    return state;
+  },
+  [setIsAdmin]: (state, action) => {
+    state.isAdmin = action.payload.isAdmin;
+    return state;
+  },
+  [setPresentedItems]: (state, action) => {
+    state.presentedItems = action.payload.items;
+    return state;
+  },
+  [setNoitems]: (state, action) => {
+    state.noItems = action.payload.noItems;
     return state;
   },
 });
-
-// export const UserReducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case SET_USER:
-//       return {
-//         ...state,
-//         user: action.payload,
-//         userDetails: action.userDetails,
-//       };
-//     case SET_USER_LOGOUT:
-//       return {
-//         ...state,
-//         user: null,
-//         userDetails: null,
-//         token: null,
-//         wishlist: null,
-//         cart: null,
-//         wishesCount: 0,
-//         cartCount: 0,
-//         items: null,
-//       };
-//     case SET_TOKEN:
-//       return {
-//         ...state,
-//         token: action.payload,
-//       };
-//     case SET_WISHLIST:
-//       return {
-//         ...state,
-//         wishlist: action.payload.wishlist,
-//         wishesCount: action.payload.count,
-//       };
-//     case SET_ITEMS:
-//       return {
-//         ...state,
-//         items: action.payload,
-//       };
-//     case SET_CART:
-//       return {
-//         ...state,
-//         cart: action.payload.cart,
-//         cartCount: action.payload.count,
-//       };
-
-//     default:
-//       return state;
-//   }
-// };

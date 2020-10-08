@@ -4,22 +4,17 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import InputBase from "@material-ui/core/InputBase";
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import MenuIcon from "@material-ui/icons/Menu";
-import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-// import MailIcon from "@material-ui/icons/Mail";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
-// import NotificationsIcon from "@material-ui/icons/Notifications";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import MoreIcon from "@material-ui/icons/MoreVert";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/actions/authActions";
-// import { Button } from "@material-ui/core";
+import { MySearch } from "../../Components/Search/MySearch";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -32,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
     display: "none",
     [theme.breakpoints.up("sm")]: {
       display: "block",
+      cursor: "pointer",
     },
   },
   search: {
@@ -88,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PrimarySearchAppBar({ routing }) {
+export default function PrimarySearchAppBar({ routing, isLogged }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -96,6 +92,7 @@ export default function PrimarySearchAppBar({ routing }) {
   const wishesCount = useSelector((s) => s.wishesCount);
   const cartCount = useSelector((s) => s.cartCount);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -141,7 +138,7 @@ export default function PrimarySearchAppBar({ routing }) {
         <MenuItem
           onClick={() => {
             dispatch(logout());
-            window.location.href = "/Login";
+            window.location.href = "/";
           }}
           style={{ textDecoration: "none", color: "currentColor" }}
           color="inherit"
@@ -154,6 +151,38 @@ export default function PrimarySearchAppBar({ routing }) {
     </Menu>
   );
 
+  const userRoute1 = isLogged ? (
+    <Link
+      to="/Wishlist"
+      style={{ textDecoration: "none", color: "currentColor" }}
+    >
+      <MenuItem>
+        <IconButton color="inherit">
+          <Badge badgeContent={wishesCount} color="error">
+            <FavoriteBorderIcon />
+          </Badge>
+        </IconButton>
+        <p>Wishlist</p>
+      </MenuItem>
+    </Link>
+  ) : null;
+
+  const userRoute2 = isLogged ? (
+    <Link
+      to="/ShoppingCart"
+      style={{ textDecoration: "none", color: "currentColor" }}
+    >
+      <MenuItem>
+        <IconButton color="inherit">
+          <Badge badgeContent={cartCount} color="error">
+            <ShoppingCartIcon />
+          </Badge>
+        </IconButton>
+        <p>Shopping Cart</p>
+      </MenuItem>
+    </Link>
+  ) : null;
+
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
@@ -165,32 +194,8 @@ export default function PrimarySearchAppBar({ routing }) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <Link
-        to="/Wishlist"
-        style={{ textDecoration: "none", color: "currentColor" }}
-      >
-        <MenuItem>
-          <IconButton color="inherit">
-            <Badge badgeContent={wishesCount}>
-              <FavoriteBorderIcon />
-            </Badge>
-          </IconButton>
-          <p>Wishlist</p>
-        </MenuItem>
-      </Link>
-      <Link
-        to="/ShoppingCart"
-        style={{ textDecoration: "none", color: "currentColor" }}
-      >
-        <MenuItem>
-          <IconButton color="inherit">
-            <Badge badgeContent={cartCount} color="error">
-              <ShoppingCartIcon />
-            </Badge>
-          </IconButton>
-          <p>Shopping Cart</p>
-        </MenuItem>
-      </Link>
+      {userRoute1}
+      {userRoute2}
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
@@ -205,57 +210,54 @@ export default function PrimarySearchAppBar({ routing }) {
     </Menu>
   );
 
+  const handleClick = () => {
+    isLogged ? history.push("/Home") : history.push("/");
+  };
+
   return (
     <div className={classes.grow}>
       <AppBar position="static" style={{ marginBottom: "1rem" }}>
         <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="open drawer"
+          <Typography
+            className={classes.title}
+            variant="h6"
+            noWrap
+            onClick={() => handleClick()}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
             Nutrition Express
           </Typography>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ "aria-label": "search" }}
-            />
-          </div>
+          <MySearch />
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <Link
-              to="/Wishlist"
-              style={{ textDecoration: "none", color: "currentColor" }}
-            >
-              <IconButton color="inherit">
-                <Badge badgeContent={wishesCount} color="error">
-                  <FavoriteBorderIcon />
-                </Badge>
-              </IconButton>
-            </Link>
-            <Link
-              to="/ShoppingCart"
-              style={{ textDecoration: "none", color: "currentColor" }}
-            >
-              <IconButton color="inherit">
-                <Badge badgeContent={cartCount} color="error">
-                  <ShoppingCartIcon />
-                </Badge>
-              </IconButton>
-            </Link>
+            {isLogged ? (
+              <>
+                <Link
+                  to="/Wishlist"
+                  style={{ textDecoration: "none", color: "currentColor" }}
+                  // onClick={() => handleMobileMenuClose()}
+                >
+                  <IconButton
+                    color="inherit"
+                    // onClick={() => handleMobileMenuClose()}
+                  >
+                    <Badge badgeContent={wishesCount} color="error">
+                      <FavoriteBorderIcon />
+                    </Badge>
+                  </IconButton>
+                </Link>
+                <Link
+                  to="/ShoppingCart"
+                  style={{ textDecoration: "none", color: "currentColor" }}
+                >
+                  <IconButton color="inherit">
+                    <Badge badgeContent={cartCount} color="error">
+                      <ShoppingCartIcon />
+                    </Badge>
+                  </IconButton>
+                </Link>
+              </>
+            ) : null}
             <IconButton
               edge="end"
               aria-label="account of current user"

@@ -98,13 +98,6 @@ public class User {
         this.roles = roles;
     }
 
-//    public List<Wishlist> getWishlist() {
-//        return wishlist;
-//    }
-//
-//    public void setWishlist(List<Wishlist> wishlist) {
-//        this.wishlist = wishlist;
-//    }
 
     public List<ShopHistory> getShopHistoryList() {
         return shopHistoryList;
@@ -161,17 +154,6 @@ public class User {
 //        System.out.println(wishlist);
         return theWish.getId();
 
-    }
-
-    public void addToCart(UserCart itemToAdd, Item theItem) {
-        if (cart == null) {
-            cart = new ArrayList<>();
-        }
-
-        cart.add(itemToAdd);
-//        itemToAdd.getItem().getCart().add(itemToAdd);
-        theItem.getCart().add(itemToAdd);
-        System.out.println(cart);
     }
 
     public void addHistory(ShopHistory theShopHistory) {

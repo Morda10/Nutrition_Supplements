@@ -1,12 +1,15 @@
 import React, { Fragment, useState, useEffect } from "react";
-import Login from "./Login_Register/Login";
-import { Items } from "./Items/Items";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import MyNavbar from "./UI/Navbar/MyNavbar";
-import Register from "./Login_Register/Register";
-import { Wishlist } from "./Wishlist/Wishlist";
-import { ShoppingCart } from "./ShoppingCart/ShoppingCart";
+import Login from "./Components/Login_Register/Login";
+import { Items } from "./Components/Items/Items";
+import { GuestItems } from "./Components/Items/Guest/GuestItems";
+import Register from "./Components/Login_Register/Register";
+import { Wishlist } from "./Components/Wishlist/Wishlist";
+import { ShoppingCart } from "./Components/ShoppingCart/ShoppingCart";
+import UserRoute from "./Components/Protected Routes/UserRoute";
+import { ItemPage } from "./Components/Items/Guest/ItemPage";
 
 function App() {
   const user = useSelector((state) => state.user);
@@ -16,22 +19,29 @@ function App() {
     { to: "/Register", name: "Register" },
   ]);
 
+  const [isLogged, setisLogged] = useState(false);
+
   useEffect(() => {
     if (user) {
       setRouting([{ to: "/", name: "Home" }]);
+      setisLogged(true);
+    } else {
+      setisLogged(false);
     }
   }, [user]);
 
   return (
     <Router>
       <Fragment>
-        <MyNavbar routing={routing} />
+        <MyNavbar routing={routing} isLogged={isLogged} />
         <Switch>
+          <Route exact path="/" component={GuestItems} />
+          <UserRoute exact path="/Home" component={Items} />
           <Route exact path="/Login" component={Login} />
-          <Route exact path="/" component={Items} />
           <Route exact path="/Register" component={Register} />
-          <Route exact path="/Wishlist" component={Wishlist} />
-          <Route exact path="/ShoppingCart" component={ShoppingCart} />
+          <UserRoute exact path="/Wishlist" component={Wishlist} />
+          <UserRoute exact path="/ShoppingCart" component={ShoppingCart} />
+          <Route exact path="/ItemPage/:itemId" component={ItemPage} />
         </Switch>
       </Fragment>
     </Router>

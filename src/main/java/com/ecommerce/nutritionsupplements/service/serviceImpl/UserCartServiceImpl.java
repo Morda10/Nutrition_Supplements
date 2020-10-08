@@ -1,5 +1,7 @@
 package com.ecommerce.nutritionsupplements.service.serviceImpl;
 
+import com.ecommerce.nutritionsupplements.entity.Item;
+import com.ecommerce.nutritionsupplements.entity.User;
 import com.ecommerce.nutritionsupplements.entity.UserCart;
 import com.ecommerce.nutritionsupplements.entity.UserCartKey;
 import com.ecommerce.nutritionsupplements.repository.UserCartRepository;
@@ -23,6 +25,16 @@ public class UserCartServiceImpl implements UserCartService {
     @Override
     public List<UserCart> findAll() {
         return userCartRepository.findAll();
+    }
+
+    @Override
+    public List<UserCart> findAllByUser(User user) {
+        return userCartRepository.findAllByUser(user);
+    }
+
+    @Override
+    public List<UserCart> findAllByItem(Item item) {
+        return userCartRepository.findAllByItem(item);
     }
 
     @Override
@@ -50,5 +62,10 @@ public class UserCartServiceImpl implements UserCartService {
     @Override
     public void deleteById(UserCartKey theId) {
         userCartRepository.deleteById(theId);
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends UserCart> iterable) {
+        userCartRepository.deleteAll(iterable);
     }
 }

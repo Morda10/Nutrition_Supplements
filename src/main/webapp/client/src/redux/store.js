@@ -1,21 +1,15 @@
-// import { createStore, applyMiddleware } from "redux";
 import logger from "redux-logger";
 import rootReducer from "./reducers/rootReducer";
 import { persistStore } from "redux-persist";
-import {
-  configureStore,
-  // getDefaultMiddleware,
-} from "@reduxjs/toolkit";
-import thunk from "redux-thunk";
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+// import thunk from "redux-thunk";
 
-// export const store = configureStore({
-//   reducer: rootReducer,
-//   middleware: [logger, ...getDefaultMiddleware()],
-// });
+const defaultMiddleware = getDefaultMiddleware({ serializableCheck: false });
+const middleware = [...defaultMiddleware, logger];
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: [logger, thunk],
+  middleware,
 });
 
 export const persistor = persistStore(store); // cache store
