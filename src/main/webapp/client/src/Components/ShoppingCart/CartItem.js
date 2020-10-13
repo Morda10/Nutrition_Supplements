@@ -1,77 +1,64 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Typography,
-  Card,
-  CardActionArea,
-  CardMedia,
-  CardContent,
   IconButton,
   makeStyles,
+  Paper,
+  Radio,
 } from "@material-ui/core";
 import RemoveCircleOutlineIcon from "@material-ui/icons/RemoveCircleOutline";
-import { useSelector } from "react-redux";
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 345,
     borderRadius: 15,
-  },
-  media: {
-    width: 200,
-    height: 200,
-    // borderStyle: "ridge none ridge none",
-    paddingTop: "56.25%", // 16:9
-  },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
-  avatar: {
-    backgroundColor: "red[500]",
-  },
-  title: {
-    background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-    border: 0,
-    borderRadius: 3,
-    boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
-    color: "white",
-    height: 48,
-    padding: "0 30px",
   },
   image: {
     width: 150,
     height: 200,
+    margin:"0.5rem"
   },
   remove: {
     color: theme.palette.error.main,
-    right: "-3.8rem",
-    top: "1rem",
+
   },
 }));
 
-export const CartItem = ({ item, amount, removeItem }) => {
+export const CartItem = ({ item, amount, removeItem, itemsForPurchase, setitemsForPurchase }) => {
   const classes = useStyles();
-  const noItemImage = useSelector((state) => state.noItemImage);
+  const [selected, setselected] = useState(false)
+  // const noItemImage = useSelector((state) => state.noItemImage);
+
+  const handleClicked = (e) => {
+    const itemID = item.id
+    if(!selected === true){
+      console.log(itemID)
+      setitemsForPurchase([...itemsForPurchase,itemID])
+    }
+    else if(itemsForPurchase.includes(itemID)){
+      const array = itemsForPurchase
+      const index = array.indexOf(itemID);
+      if (index > -1) {
+        array.splice(index, 1);
+      }
+      setitemsForPurchase(array)
+    }
+    console.log(itemsForPurchase)
+    setselected(!selected)
+  }
 
   return (
-    <Grid item>
-      <Card raised className={classes.root}>
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={item.image ? item.image : noItemImage}
-            title="item pic"
-          />
-        </CardActionArea>
-        <CardContent>
-          <Typography
+      <Grid item xs={10} md={8} lg={6} style={{marginLeft: "3rem"}}>
+        <Paper className={classes.root}>
+        <Grid container justify="center" alignItems="center"> 
+          <Grid item xs={2}>
+     
+          <img src={item.image} alt="svd" className={classes.image}></img>
+     
+        </Grid>
+        <Grid item xs={3}>
+        <Typography
             style={{
               fontWeight: "bold",
             }}
@@ -79,22 +66,41 @@ export const CartItem = ({ item, amount, removeItem }) => {
           >
             {item.cost}$
           </Typography>
+              </Grid>
+            <Grid>
+
           <Typography
             style={{
               fontWeight: "bold",
             }}
             align="center"
-          >
+            >
             amount: {amount}
           </Typography>
+            </Grid>
+
+          <Grid item  xs={2} style={{marginLeft:"8rem"}}>
+
+          <Radio checked={selected}
+          value={item.id}
+          onClick={(e)=>handleClicked(e)}
+          // style={{margin:"5rem"}}
+          />
+        {/* </Grid> */}
+        {/* <Grid item xs={2}> */}
           <IconButton
             className={classes.remove}
             onClick={() => removeItem(item)}
-          >
-            <RemoveCircleOutlineIcon />
+            >
+            <RemoveCircleOutlineIcon  />
           </IconButton>
-        </CardContent>
-      </Card>
-    </Grid>
+          </Grid>
+
+         
+          </Grid>
+        
+      </Paper>
+      </Grid>
   );
 };
+    

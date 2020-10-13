@@ -9,7 +9,7 @@ import Register from "./Components/Login_Register/Register";
 import { Wishlist } from "./Components/Wishlist/Wishlist";
 import { ShoppingCart } from "./Components/ShoppingCart/ShoppingCart";
 import UserRoute from "./Components/Protected Routes/UserRoute";
-import { ItemPage } from "./Components/Items/Guest/ItemPage";
+import { ItemPage } from "./Components/Items/ItemPage";
 
 function App() {
   const user = useSelector((state) => state.user);

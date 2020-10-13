@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Axios from "axios";
-import { Grid, Typography } from "@material-ui/core";
+import { Button, Grid, Typography } from "@material-ui/core";
 import { setCart } from "../../redux/reducers/UserReducer";
 import { CartItem } from "./CartItem";
 
@@ -9,6 +9,7 @@ export const ShoppingCart = () => {
   const cart = useSelector((state) => state.cart);
   const userDetails = useSelector((state) => state.userDetails);
   const dispatch = useDispatch();
+  const [itemsForPurchase, setitemsForPurchase] = useState([])
 
   useEffect(() => {
     console.log(cart.length);
@@ -41,6 +42,45 @@ export const ShoppingCart = () => {
     handleWishlist(item);
   };
 
+  const handleClick = () => {
+
+    if(itemsForPurchase.length === 0) return 0;
+    
+    console.log(itemsForPurchase)
+    const addhistory = async (values)=>{
+     const res = await Axios.post("/history/addHistory/",values)
+     console.log(res)
+    }
+
+    let a;
+    itemsForPurchase.forEach(e => {
+
+      for (let i = 0; i < cart.length; i++) {
+        const el = cart[i];
+        console.log(el.item.id)
+        if(el.item.id === e) {
+          a = el.amount
+        break;
+        }
+        
+      }
+
+      // add check for amount of item if smaller throw error
+      const values = {
+        userId: userDetails.id,
+        itemId: e,
+        amount: a  
+      }
+
+      addhistory(values)
+      
+    });
+
+    // remove purchased items from cart
+
+    // update items amount
+  }
+
   return (
     <>
       <Typography
@@ -48,9 +88,14 @@ export const ShoppingCart = () => {
         variant="h2"
         style={{ fontWeight: "bold", margin: "2rem" }}
       >
-        Cart
+       Shopping Cart
       </Typography>
-      <Grid container justify="center" spacing={2}>
+      <Grid
+       container
+         spacing={2}
+         justify="center"
+      
+       > 
         {cart
           ? cart.map((c) => (
               <CartItem
@@ -58,10 +103,16 @@ export const ShoppingCart = () => {
                 item={c.item}
                 amount={c.amount}
                 removeItem={removeItem}
+                itemsForPurchase={itemsForPurchase}
+                setitemsForPurchase={setitemsForPurchase}
               />
-            ))
-          : null}
-      </Grid>
+              ))
+              : null}
+        </Grid> 
+
+         <Button onClick={()=>{handleClick()}} variant="contained" color="primary" style={{fontWeight: "bold", left: "45%", margin: "2rem"}}>Place order</Button>
+        
+
     </>
   );
 };

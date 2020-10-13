@@ -31,15 +31,15 @@ public class CartRestController {
     }
 
 
-    @PostMapping("/addHistory")
-    public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
-
-        User user = userService.findById(theShopHistory.getUserId());
-        user.addHistory(theShopHistory);
-        userService.save(user);
-
-        return theShopHistory;
-    }
+//    @PostMapping("/addHistory")
+//    public ShopHistory addItemToHistory(@RequestBody ShopHistory theShopHistory) {
+//
+//        User user = userService.findById(theShopHistory.getId().);
+//        user.addHistory(theShopHistory);
+//        userService.save(user);
+//
+//        return theShopHistory;
+//    }
 
     @PostMapping("/addToCart")
     public ResponseEntity<Object> addItemToCart(@RequestBody CartItem cartitem) {

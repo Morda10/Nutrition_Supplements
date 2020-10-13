@@ -3,8 +3,8 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { setCart } from "../../../redux/reducers/UserReducer";
-import { ItemComments } from "../ItemComments";
+import { setCart } from "../../redux/reducers/UserReducer";
+import { ItemComments } from "./ItemComments";
 
 export const ItemPage = () => {
   let { itemId } = useParams();

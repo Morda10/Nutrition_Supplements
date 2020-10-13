@@ -12,11 +12,12 @@ public interface UserCartService {
 
     public List<UserCart> findAll();
 
+    public UserCart findById(UserCartKey theId);
+
     public List<UserCart> findAllByUser(User user);
 
     public List<UserCart> findAllByItem(Item item);
 
-    public UserCart findById(UserCartKey theId);
 
     public void save(UserCart theUserCart);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { Grid, Typography } from "@material-ui/core";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ export const Items = () => {
   const cart = useSelector((state) => state.cart);
   const noItems = useSelector((state) => state.noItems);
   const isAdmin = useSelector((state) => state.isAdmin);
-  const [item, setitem] = useState(undefined);
+  // const [item, setitem] = useState(undefined);
   const dispatch = useDispatch();
 
   const config = {
@@ -75,14 +75,21 @@ export const Items = () => {
 
   return (
     <div>
-      {item?.name}
+      <Typography
+        variant="h2"
+        color="primary"
+        align="center"
+        style={{ fontWeight: "bold", margin: "1rem 0 1rem 4rem" }}
+      >
+        Items List
+      </Typography>
       <Grid container justify="center" spacing={2}>
         {presentedItems
           ? presentedItems.map((item) => (
               <Item
                 key={item.id}
                 item={item}
-                setitem={setitem}
+                // setitem={setitem}
                 updateUserdata={updateUserdata}
                 config={config}
                 userDetails={userDetails}

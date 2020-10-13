@@ -43,10 +43,6 @@ public class UserCart {
         this.id = id;
     }
 
-//    public User getUser() {
-//        return user;
-//    }
-
     public void setUser(User user) {
         this.user = user;
     }
@@ -67,20 +63,6 @@ public class UserCart {
         this.amount = amount;
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        UserCart userCart = (UserCart) o;
-//        return
-//                Objects.equals(getUser(), userCart.getUser()) &&
-//                Objects.equals(getItem(), userCart.getItem());
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(getUser(), getItem());
-//    }
 
     @Override
     public String toString() {
